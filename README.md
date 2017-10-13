@@ -1,4 +1,9 @@
 # Como executar a lib
+Adicionar o `.jar` no classpath do seu projeto. Para construir o projeto, basta executar:
+
+`$ ./gradlew clean build`
+
+Após isso, basta obter o `.jar` em build/libs 
 
 ## build.gradle
 ```groovy
@@ -165,4 +170,4 @@ public class BotService {
     private Properties properties;
 }
 ```
-
+> Criar um offset.properties no root do projeto.
