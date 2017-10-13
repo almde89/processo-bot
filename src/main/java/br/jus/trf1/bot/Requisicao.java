@@ -65,8 +65,8 @@ public class Requisicao {
         public Requisicao build() {
             final Requisicao instance = new Requisicao();
             if (message != null) instance.setMessage(message);
-            else {
-                instance.mNumeroProcesso = processo;
+            else if (processo != null) {
+                instance.setNumeroProcesso(processo);
                 instance.mChatId = chatId;
                 instance.mMessageId = messageId;
             }
@@ -76,7 +76,9 @@ public class Requisicao {
         }
     }
 
-    Requisicao () {}
+    Requisicao () {
+        mNumeroProcesso = "";
+    }
 
     public Requisicao(final Message message) {
         setMessage(message);
