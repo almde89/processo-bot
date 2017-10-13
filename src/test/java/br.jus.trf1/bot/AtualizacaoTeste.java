@@ -1,5 +1,8 @@
 package br.jus.trf1.bot;
 
+import br.jus.trf1.bot.novidade.Atualizacao;
+import br.jus.trf1.bot.novidade.Cabecalho;
+import br.jus.trf1.bot.novidade.Novidade;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

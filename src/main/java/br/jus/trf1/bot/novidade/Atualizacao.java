@@ -1,4 +1,4 @@
-package br.jus.trf1.bot;
+package br.jus.trf1.bot.novidade;
 
 import java.util.ArrayList;
 import java.util.List;

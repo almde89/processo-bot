@@ -1,6 +1,8 @@
 package br.jus.trf1.telegram.bot;
 
-import br.jus.trf1.bot.RequisicaoAtualizacao;
+import br.jus.trf1.bot.Requisicao;
+import com.pengrad.telegrambot.model.Chat;
+import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
@@ -11,6 +13,8 @@ import java.util.ArrayList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 public class SendMessageFactoryTest {
 
@@ -50,10 +54,15 @@ public class SendMessageFactoryTest {
     public void deveCriarKeyboardsParaProcessosQuandoCriarInstanciaComRequisicaoAtualizacao() {
         final SendMessageFactoryImpl factory = new SendMessageFactoryImpl();
         final SendMessage request;
-        final ArrayList<RequisicaoAtualizacao> requisicoes = new ArrayList<>();
-        requisicoes.add(new RequisicaoAtualizacao(""));
-        requisicoes.add(new RequisicaoAtualizacao(""));
-        requisicoes.add(new RequisicaoAtualizacao(""));
+        final ArrayList<Requisicao> requisicoes = new ArrayList<>();
+        final Message messageMock = mock(Message.class);
+        final Chat chatMock = mock(Chat.class);
+        doReturn(chatMock).when(messageMock).chat();
+        doReturn(new Long(1)).when(chatMock).id();
+        doReturn("1000438-56.2017.4.01.3400").when(messageMock).text();
+        requisicoes.add(new Requisicao(messageMock));
+        requisicoes.add(new Requisicao(messageMock));
+        requisicoes.add(new Requisicao(messageMock));
 
         request = factory.instance(new Long(21), requisicoes);
 

@@ -1,4 +1,4 @@
-package br.jus.trf1.bot;
+package br.jus.trf1.bot.novidade;
 
 public class Cabecalho {
 
