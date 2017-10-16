@@ -1,38 +1,42 @@
 package br.jus.trf1.bot;
 
-import br.jus.trf1.bot.novidade.Atualizacao;
+import br.jus.trf1.bot.fluxo.FluxoSpecification;
+import br.jus.trf1.bot.fluxo.ListarProcessoSpecification;
+import br.jus.trf1.bot.fluxo.ProcessoNovoSpecification;
+import br.jus.trf1.bot.fluxo.ProcessoSelecionadoSpecification;
 import br.jus.trf1.bot.novidade.AtualizacaoRespository;
 import br.jus.trf1.telegram.bot.SendMessageFactory;
 import com.pengrad.telegrambot.TelegramBot;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class NovidadeProcessoBot {
 
+    public NovidadeProcessoBot() {
+        addFluxoSpecification(new ListarProcessoSpecification(mRequisicaoRepository, mRequisicaoService));
+        addFluxoSpecification(new ProcessoNovoSpecification(mAtualizacaoRespository, mRequisicaoRepository, mRequisicaoService));
+        addFluxoSpecification(new ProcessoSelecionadoSpecification(mAtualizacaoRespository, mRequisicaoService));
+    }
+
     public static class Builder {
-        private SendMessageFactory sendMessageFactory;
         private AtualizacaoRespository atualizacaoRespository;
-        private TelegramBot telegramBot;
         private RequisicaoRepository requisicaoRepository;
+        private RequisicaoService requisicaoService;
 
         public Builder() {}
 
-        public Builder sendMessageFactory(final SendMessageFactory factory) {
-            sendMessageFactory = factory;
+        public Builder atualizacaoRepository(final AtualizacaoRespository respository) {
+            atualizacaoRespository = respository;
             return this;
         }
 
-        public Builder atualizacaoService(final AtualizacaoRespository service) {
-            atualizacaoRespository = service;
+        public Builder requisicaoService(final RequisicaoService service) {
+            requisicaoService = service;
             return this;
         }
 
-        public Builder telegramBot(final TelegramBot bot) {
-            telegramBot = bot;
-            return this;
-        }
-
-        public Builder requisicaoAtualizacaoRepository(final RequisicaoRepository repository) {
+        public Builder requisicaoRepository(final RequisicaoRepository repository) {
             requisicaoRepository = repository;
             return this;
         }
@@ -40,9 +44,9 @@ public class NovidadeProcessoBot {
         public NovidadeProcessoBot build() {
             final NovidadeProcessoBot instance = new NovidadeProcessoBot();
             instance.setRequisicaoAtualizacaoRepository(requisicaoRepository);
-            instance.setTelegramBot(telegramBot);
-            instance.setSendMessageFactory(sendMessageFactory);
-            instance.setAtualizacaoService(atualizacaoRespository);
+            instance.mAtualizacaoRespository = atualizacaoRespository;
+            instance.mRequisicaoService = requisicaoService;
+            instance.mRequisicaoRepository = requisicaoRepository;
             return instance;
         }
     }
@@ -52,26 +56,21 @@ public class NovidadeProcessoBot {
     }
 
     public void responder(final Requisicao novaRequisicao) {
-        novaRequisicao.getFluxo().execute(mAtualizacaoRespository, mTelegramBot, mRequisicaoRepository, mSendMessageFactory);
+        mFluxoSpecifications.forEach(specification -> {
+            if (specification.satisfaz(novaRequisicao)) specification.getFluxoStrategy().execute(novaRequisicao);
+        });
     }
 
-    public void setTelegramBot(final TelegramBot telegramBot) {
-        mTelegramBot = telegramBot;
+    public void addFluxoSpecification(final FluxoSpecification specification) {
+        mFluxoSpecifications.add(specification);
     }
 
-    public void setAtualizacaoService(final AtualizacaoRespository atualizacaoRespository) {
-        mAtualizacaoRespository = atualizacaoRespository;
-    }
-
-    public void setSendMessageFactory(final SendMessageFactory sendMessageFactory) {
-        mSendMessageFactory = sendMessageFactory;
-    }
+    private List<FluxoSpecification> mFluxoSpecifications = new ArrayList<>();
 
     private AtualizacaoRespository mAtualizacaoRespository;
 
-    private TelegramBot mTelegramBot;
+    private RequisicaoService mRequisicaoService;
 
     private RequisicaoRepository mRequisicaoRepository;
 
-    private SendMessageFactory mSendMessageFactory;
 }

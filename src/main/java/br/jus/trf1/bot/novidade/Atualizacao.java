@@ -11,6 +11,10 @@ public class Atualizacao {
         return mMensagemHTML;
     }
 
+    public Boolean haNovidades() {
+        return mMensagemHTML != null && !mMensagemHTML.isEmpty();
+    }
+
     public static class Builder {
 
         public Builder() {
@@ -21,7 +25,7 @@ public class Atualizacao {
             final Atualizacao instance = new Atualizacao();
             conteudo = new StringBuilder();
             if (cabecalhoAtualizacao != null) conteudo.append(cabecalhoAtualizacao.toString());
-            novidadesAtualizacao.stream().forEachOrdered(novidade -> conteudo.append(novidade.toString()).append("\n"));
+            novidadesAtualizacao.forEach(novidade -> conteudo.append(novidade.toString()).append("\n"));
             instance.mMensagemHTML = conteudo.toString();
             return instance;
         }

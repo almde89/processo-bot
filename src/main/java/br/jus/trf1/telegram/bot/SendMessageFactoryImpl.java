@@ -1,6 +1,6 @@
 package br.jus.trf1.telegram.bot;
 
-import br.jus.trf1.bot.Requisicao;
+import br.jus.trf1.Processo;
 import com.pengrad.telegrambot.model.request.ForceReply;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
@@ -21,12 +21,12 @@ public class SendMessageFactoryImpl implements SendMessageFactory {
     }
 
     @Override
-    public SendMessage instance(Long chatId, List<Requisicao> requisicoes) {
-        final String[][] botoes = new String[requisicoes.size()][1];
+    public SendMessage instance(Long chatId, List<Processo> processos) {
+        final String[][] botoes = new String[processos.size()][1];
         int indeXMatrizBotoes = 0;
 
-        for (final Requisicao requisicao :requisicoes){
-            botoes[indeXMatrizBotoes++][0] = requisicao.getProcesso();
+        for (final Processo requisicao : processos){
+            botoes[indeXMatrizBotoes++][0] = requisicao.getProcessoNumero();
         }
 
         return new SendMessage(chatId, "Selecione um processo para ver sobre as novidades:")

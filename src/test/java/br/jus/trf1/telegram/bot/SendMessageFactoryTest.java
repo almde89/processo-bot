@@ -1,5 +1,6 @@
 package br.jus.trf1.telegram.bot;
 
+import br.jus.trf1.Processo;
 import br.jus.trf1.bot.Requisicao;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
@@ -54,17 +55,17 @@ public class SendMessageFactoryTest {
     public void deveCriarKeyboardsParaProcessosQuandoCriarInstanciaComRequisicaoAtualizacao() {
         final SendMessageFactoryImpl factory = new SendMessageFactoryImpl();
         final SendMessage request;
-        final ArrayList<Requisicao> requisicoes = new ArrayList<>();
+        final ArrayList<Processo> processos = new ArrayList<>();
         final Message messageMock = mock(Message.class);
         final Chat chatMock = mock(Chat.class);
         doReturn(chatMock).when(messageMock).chat();
         doReturn(new Long(1)).when(chatMock).id();
         doReturn("1000438-56.2017.4.01.3400").when(messageMock).text();
-        requisicoes.add(new Requisicao(messageMock));
-        requisicoes.add(new Requisicao(messageMock));
-        requisicoes.add(new Requisicao(messageMock));
+        processos.add(new Processo("1000438-56.2017.4.01.3400"));
+        processos.add(new Processo("1000438-56.2017.4.01.3400"));
+        processos.add(new Processo("1000438-56.2017.4.01.3400"));
 
-        request = factory.instance(new Long(21), requisicoes);
+        request = factory.instance(new Long(21), processos);
 
         assertNotNull("Request deve ser diferente de null", request);
         assertEquals("Requisições devem ser respondidas com ReplyKeyboardMarkup"
