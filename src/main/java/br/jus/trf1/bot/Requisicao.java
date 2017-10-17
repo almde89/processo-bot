@@ -24,12 +24,11 @@ public class Requisicao {
     public static class Builder {
 
         private Message message;
-        private SendMessageFactory sendMessageFactory;
-        private TelegramBot telegramBot;
         private Long messageId;
         private Long chatId;
         private String processo;
         private RequisicaoRepository requisicaoRepository;
+        private String textoMensagem;
 
         public Builder() {}
 
@@ -41,6 +40,11 @@ public class Requisicao {
 
         public Builder chatId(final Long identificacaoChat) {
             chatId = identificacaoChat;
+            return this;
+        }
+
+        public Builder textoMensagem(final String texto) {
+            textoMensagem = texto;
             return this;
         }
 
@@ -63,6 +67,7 @@ public class Requisicao {
             final Requisicao instance = new Requisicao();
             if (message != null) instance.setMessage(message);
             else if (processo != null) {
+                instance.mTexto = textoMensagem;
                 instance.setNumeroProcesso(processo);
                 instance.mChatId = chatId;
                 instance.mMessageId = messageId;
@@ -107,10 +112,6 @@ public class Requisicao {
     public Integer getMessageId() {
         return mMessageId.intValue();
     }
-
-//    public SendResponse responder(final List<Requisicao> requisicoesCadastradas) {
-//        return mTelegramBot.execute(mSendMessageFactory.instance(getChatId(), requisicoesCadastradas));
-//    }
 
     private void setMessage(final Message message) {
         final String mensagem = message.text();
