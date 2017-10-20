@@ -1,19 +1,15 @@
 package br.jus.trf1.bot;
 
-import br.jus.trf1.bot.fluxo.FluxoSpecification;
-import br.jus.trf1.bot.fluxo.ListarProcessosStrategy;
-import br.jus.trf1.bot.fluxo.ProcessoNovoStrategy;
-import br.jus.trf1.bot.fluxo.ProcessoSelecionadoStrategy;
+import br.jus.trf1.bot.fluxo.RespostaSpecification;
+import br.jus.trf1.bot.fluxo.RespostaStrategy;
+import br.jus.trf1.bot.novidade.Atualizacao;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import org.junit.Test;
 
-import java.util.ArrayList;
-
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 public class RequisicaoTest {
 
@@ -28,6 +24,21 @@ public class RequisicaoTest {
         new Requisicao(messageMock);
     }
 
-    private ArrayList<FluxoSpecification> specsDeFluxo = new ArrayList<FluxoSpecification>();
+    @Test
+    public void deveCriarRespostarQuandoResponder() {
+        final RespostaSpecification specification = mock(RespostaSpecification.class);
+        final RespostaFactory respostaFactory = mock(RespostaFactory.class);
+        final Requisicao requisicao = new Requisicao.Builder()
+                .respostaFactory(respostaFactory)
+                .build();
+        final Resposta respostaFromFactory = new Resposta(requisicao);
+        final Resposta resposta;
+
+        doReturn(respostaFromFactory).when(respostaFactory).instance(requisicao, specification);
+
+        resposta = requisicao.responder(specification);
+
+        assertNotNull("Toda atualizacao deve ter uma repsosta", resposta);
+    }
 
 }

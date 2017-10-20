@@ -1,7 +1,7 @@
 package br.jus.trf1.bot.fluxo;
 
 import br.jus.trf1.bot.Requisicao;
-import br.jus.trf1.bot.RequisicaoService;
+import br.jus.trf1.bot.RespostaService;
 import br.jus.trf1.bot.novidade.Atualizacao;
 import br.jus.trf1.bot.novidade.AtualizacaoRespository;
 import org.junit.Test;
@@ -12,10 +12,10 @@ public class ProcessoSelecionadoStrategyTest {
 
     @Test
     public void deveEnviarNovidadeDoProcessoRequisitadoQuandoResponderRequisicao() {
-        final RequisicaoService requisicaoService = mock(RequisicaoService.class);
+        final RespostaService respostaService = mock(RespostaService.class);
         final AtualizacaoRespository atualizacaoRespository = mock(AtualizacaoRespository.class);
         final ProcessoSelecionadoStrategy strategy = new ProcessoSelecionadoStrategy.Builder()
-                .requisicaoService(requisicaoService)
+                .requisicaoService(respostaService)
                 .atualizacaoRespository(atualizacaoRespository)
                 .build();
         final Atualizacao atualizacao = mock(Atualizacao.class);
@@ -28,7 +28,7 @@ public class ProcessoSelecionadoStrategyTest {
 
         strategy.execute(requisicao);
 
-        verify(requisicaoService).responder(requisicao, atualizacao);
+        verify(respostaService).responder(requisicao, atualizacao);
     }
 
 }

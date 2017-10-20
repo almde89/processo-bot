@@ -2,18 +2,19 @@ package br.jus.trf1.bot.fluxo;
 
 import br.jus.trf1.bot.Requisicao;
 import br.jus.trf1.bot.RequisicaoRepository;
-import br.jus.trf1.bot.RequisicaoService;
+import br.jus.trf1.bot.Resposta;
+import br.jus.trf1.bot.RespostaService;
 import br.jus.trf1.bot.novidade.Atualizacao;
 import br.jus.trf1.bot.novidade.AtualizacaoRespository;
 
-public class ProcessoNovoStrategy implements FluxoStrategy {
+public class ProcessoNovoStrategy implements RespostaStrategy {
 
     private RequisicaoRepository mRequisicaoRepository;
-    private RequisicaoService mRequisicaoService;
+    private RespostaService mRespostaService;
     private AtualizacaoRespository mAtualizacaoRespository;
 
     @Override
-    public void execute(Requisicao requisicao) {
+    public <T> T execute(Requisicao requisicao) {
         final Atualizacao atualizacao;
         if (!requisicao.isCadastrada()) {
             mRequisicaoRepository.registrar(requisicao);
@@ -21,15 +22,15 @@ public class ProcessoNovoStrategy implements FluxoStrategy {
         atualizacao = mAtualizacaoRespository.obterNovidades(requisicao.getProcesso());
 
         if (atualizacao.haNovidades()) {
-            mRequisicaoService.responder(requisicao, atualizacao);
+            return (T) mRespostaService.responder(requisicao, atualizacao);
         } else {
-            mRequisicaoService.responder(requisicao, "Não ná atualizações para o processo escolhido.");
+            return (T) mRespostaService.responder(requisicao, "Não ná atualizações para o processo escolhido.");
         }
     }
 
     public static class Builder {
         private RequisicaoRepository requisicaoRepository;
-        private RequisicaoService requisicaoService;
+        private RespostaService respostaService;
         private AtualizacaoRespository atualizacaoRespository;
 
         public Builder requisicaoRepository(RequisicaoRepository requisicaoRepository) {
@@ -37,15 +38,15 @@ public class ProcessoNovoStrategy implements FluxoStrategy {
             return this;
         }
 
-        public Builder requisicaoService(RequisicaoService requisicaoService) {
-            this.requisicaoService = requisicaoService;
+        public Builder requisicaoService(RespostaService respostaService) {
+            this.respostaService = respostaService;
             return this;
         }
 
         public ProcessoNovoStrategy build() {
             final ProcessoNovoStrategy instance = new ProcessoNovoStrategy();
             instance.mRequisicaoRepository = requisicaoRepository;
-            instance.mRequisicaoService = requisicaoService;
+            instance.mRespostaService = respostaService;
             instance.mAtualizacaoRespository = atualizacaoRespository;
             return instance;
         }

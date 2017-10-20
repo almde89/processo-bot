@@ -2,28 +2,32 @@ package br.jus.trf1.telegram.bot;
 
 import br.jus.trf1.Processo;
 import br.jus.trf1.bot.Requisicao;
-import br.jus.trf1.bot.RequisicaoService;
+import br.jus.trf1.bot.RespostaService;
 import br.jus.trf1.bot.novidade.Atualizacao;
 import com.pengrad.telegrambot.TelegramBot;
 
+import javax.lang.model.type.NullType;
 import java.util.List;
 
-public class SendTelegramService implements RequisicaoService {
+public class SendTelegramService implements RespostaService<NullType> {
     @Override
-    public void responder(Requisicao requisicao, List<Processo> processos) {
+    public NullType responder(Requisicao requisicao, List<Processo> processos) {
         mTelegramBot.execute(mSendMessageFactory.instance(requisicao.getChatId(), processos));
+        return null;
     }
 
     @Override
-    public void responder(Requisicao requisicao, Atualizacao atualizacao) {
+    public NullType responder(Requisicao requisicao, Atualizacao atualizacao) {
         mTelegramBot.execute(mSendMessageFactory.instance(requisicao.getChatId()
-                , requisicao.getMessageId(), atualizacao.getMensagemHTML()));
+                , requisicao.getMessageId().intValue(), atualizacao.getMensagemHTML()));
+        return null;
     }
 
     @Override
-    public void responder(Requisicao requisicao, String mensagem) {
+    public NullType responder(Requisicao requisicao, String mensagem) {
         mTelegramBot.execute(mSendMessageFactory.instance(requisicao.getChatId()
-                , requisicao.getMessageId(), mensagem));
+                , requisicao.getMessageId().intValue(), mensagem));
+        return null;
     }
 
     public SendTelegramService (final SendMessageFactory sendMessageFactory, final TelegramBot telegramBot) {

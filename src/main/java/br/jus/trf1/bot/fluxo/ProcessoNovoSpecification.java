@@ -2,27 +2,27 @@ package br.jus.trf1.bot.fluxo;
 
 import br.jus.trf1.bot.Requisicao;
 import br.jus.trf1.bot.RequisicaoRepository;
-import br.jus.trf1.bot.RequisicaoService;
+import br.jus.trf1.bot.RespostaService;
 import br.jus.trf1.bot.novidade.AtualizacaoRespository;
 
 import java.util.regex.Pattern;
 
-public class ProcessoNovoSpecification implements FluxoSpecification {
+public class ProcessoNovoSpecification implements RespostaSpecification {
 
     public ProcessoNovoSpecification(final AtualizacaoRespository atualizacaoRespository
-            , final RequisicaoRepository requisicaoRepository, final RequisicaoService service) {
+            , final RequisicaoRepository requisicaoRepository, final RespostaService service) {
         mFluxoStrategy = new ProcessoNovoStrategy.Builder().atualizacaoRespository(atualizacaoRespository)
                 .requisicaoRepository(requisicaoRepository)
                 .requisicaoService(service).build();
     }
 
     @Override
-    public Boolean satisfaz(Requisicao requisicao) {
+    public Boolean satisfesteiPor(Requisicao requisicao) {
         return mPattern.matcher(requisicao.getTexto()).matches();
     }
 
     @Override
-    public FluxoStrategy getFluxoStrategy() {
+    public RespostaStrategy getRespostaStrategy() {
         return mFluxoStrategy;
     }
 

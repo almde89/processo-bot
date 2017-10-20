@@ -1,24 +1,29 @@
 package br.jus.trf1.bot;
 
-import br.jus.trf1.telegram.bot.SendMessageFactory;
-import com.pengrad.telegrambot.TelegramBot;
+import br.jus.trf1.Processo;
+import br.jus.trf1.bot.fluxo.RespostaSpecification;
+import br.jus.trf1.bot.fluxo.RespostaStrategy;
+import br.jus.trf1.bot.novidade.Atualizacao;
 import com.pengrad.telegrambot.model.Message;
 
-import java.util.regex.Pattern;
-
 public class Requisicao {
-    private String mNumeroProcesso;
+    private Processo mProcesso;
     private Long mChatId;
     private Long mMessageId;
     private String mTexto;
     private RequisicaoRepository mRequisicaoRepository;
+    private RespostaFactory mRespostaFactory;
 
     public String getTexto() {
         return mTexto;
     }
 
     public Boolean isCadastrada() {
-        return mRequisicaoRepository.obter(mNumeroProcesso, mChatId) != null;
+        return mRequisicaoRepository.obter(mProcesso.getProcessoNumero(), mChatId) != null;
+    }
+
+    public Resposta responder(RespostaSpecification respostaSpecification) {
+        return mRespostaFactory.instance(this, respostaSpecification);
     }
 
     public static class Builder {
@@ -26,9 +31,10 @@ public class Requisicao {
         private Message message;
         private Long messageId;
         private Long chatId;
-        private String processo;
+        private Processo processo;
         private RequisicaoRepository requisicaoRepository;
         private String textoMensagem;
+        private RespostaFactory respostaFactory;
 
         public Builder() {}
 
@@ -49,7 +55,7 @@ public class Requisicao {
         }
 
         public Builder processo (final String numeroProcesso) {
-            processo = numeroProcesso;
+            processo = new Processo(numeroProcesso);
             return this;
         }
 
@@ -68,49 +74,49 @@ public class Requisicao {
             if (message != null) instance.setMessage(message);
             else if (processo != null) {
                 instance.mTexto = textoMensagem;
-                instance.setNumeroProcesso(processo);
+                instance.setProcesso(processo);
                 instance.mChatId = chatId;
                 instance.mMessageId = messageId;
             }
+            instance.mRespostaFactory = respostaFactory;
             instance.mRequisicaoRepository = requisicaoRepository;
             return instance;
+        }
+
+
+        public Builder respostaFactory(RespostaFactory factory) {
+            respostaFactory = factory;
+            return this;
         }
     }
 
     Requisicao () {
-        mNumeroProcesso = "";
+        mProcesso = new Processo();
     }
 
-    public Requisicao(final Message message) {
+    Requisicao(final Message message) {
         mTexto = message.text();
         setMessage(message);
     }
 
     public String getProcesso() {
-        return mNumeroProcesso;
+        return mProcesso.getProcessoNumero();
     }
 
     public boolean isNumeroProcessoValido() {
-        return isNumeroProcesso(mNumeroProcesso);
+        return mProcesso.isValido();
     }
 
-    private void setNumeroProcesso(String numeroProcesso) {
-        if (!isNumeroProcesso(numeroProcesso))
-            throw new IllegalArgumentException("O processo deve obedecer ao NPU.");
-        mNumeroProcesso = numeroProcesso;
-    }
-
-    private boolean isNumeroProcesso(String numeroProcesso) {
-        final Pattern matcher = Pattern.compile("(\\d{7})\\-(\\d{2})\\.(\\d{4})\\.(\\d)\\.(\\d{2})\\.(\\d{4})");
-        return matcher.matcher(numeroProcesso).matches();
+    private void setProcesso(Processo processo) {
+        mProcesso = processo;
     }
 
     public Long getChatId() {
         return mChatId;
     }
 
-    public Integer getMessageId() {
-        return mMessageId.intValue();
+    public Long getMessageId() {
+        return mMessageId;
     }
 
     private void setMessage(final Message message) {
@@ -118,11 +124,12 @@ public class Requisicao {
         final String[] fragmentosMensagem = mensagem.split(" ");
 
         if (fragmentosMensagem.length > 1) {
-            setNumeroProcesso(fragmentosMensagem[1]);
+            setProcesso(new Processo(fragmentosMensagem[1]));
         }
         else if (!mensagem.startsWith("/")) {
-            setNumeroProcesso(mensagem);
+            setProcesso(new Processo(mensagem));
         }
+        mTexto = mensagem;
         mChatId = message.chat().id();
         mMessageId = message.messageId().longValue();
     }

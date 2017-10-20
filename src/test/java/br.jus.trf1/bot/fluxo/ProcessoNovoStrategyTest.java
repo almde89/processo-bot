@@ -2,7 +2,7 @@ package br.jus.trf1.bot.fluxo;
 
 import br.jus.trf1.bot.Requisicao;
 import br.jus.trf1.bot.RequisicaoRepository;
-import br.jus.trf1.bot.RequisicaoService;
+import br.jus.trf1.bot.RespostaService;
 import br.jus.trf1.bot.novidade.Atualizacao;
 import br.jus.trf1.bot.novidade.AtualizacaoRespository;
 import org.junit.Test;
@@ -14,11 +14,11 @@ public class ProcessoNovoStrategyTest {
     @Test
     public void deveEnviarNovidadeDoProcessoRequisitadoQuandoResponderRequisicao() throws Exception {
         final RequisicaoRepository requisicaoRepository = mock(RequisicaoRepository.class);
-        final RequisicaoService requisicaoService = mock(RequisicaoService.class);
+        final RespostaService respostaService = mock(RespostaService.class);
         final AtualizacaoRespository atualizacaoRespository = mock(AtualizacaoRespository.class);
         final ProcessoNovoStrategy strategy = new ProcessoNovoStrategy.Builder()
                 .requisicaoRepository(requisicaoRepository)
-                .requisicaoService(requisicaoService)
+                .requisicaoService(respostaService)
                 .atualizacaoRespository(atualizacaoRespository)
                 .build();
         final Atualizacao atualizacao = mock(Atualizacao.class);
@@ -31,17 +31,17 @@ public class ProcessoNovoStrategyTest {
 
         strategy.execute(requisicao);
 
-        verify(requisicaoService).responder(requisicao, atualizacao);
+        verify(respostaService).responder(requisicao, atualizacao);
     }
 
     @Test
     public void deveRegistrarRequisicaoQuandoRequisicaoNaoCadastrada() throws Exception {
         final RequisicaoRepository requisicaoRepository = mock(RequisicaoRepository.class);
-        final RequisicaoService requisicaoService = mock(RequisicaoService.class);
+        final RespostaService respostaService = mock(RespostaService.class);
         final AtualizacaoRespository atualizacaoRespository = mock(AtualizacaoRespository.class);
         final ProcessoNovoStrategy strategy = new ProcessoNovoStrategy.Builder()
                 .requisicaoRepository(requisicaoRepository)
-                .requisicaoService(requisicaoService)
+                .requisicaoService(respostaService)
                 .atualizacaoRespository(atualizacaoRespository)
                 .build();
         final Atualizacao atualizacao = mock(Atualizacao.class);
@@ -59,11 +59,11 @@ public class ProcessoNovoStrategyTest {
     @Test
     public void naoDeveRegistrarRequisicaoQuandoRequisicaoJaCadastrada() throws Exception {
         final RequisicaoRepository requisicaoRepository = mock(RequisicaoRepository.class);
-        final RequisicaoService requisicaoService = mock(RequisicaoService.class);
+        final RespostaService respostaService = mock(RespostaService.class);
         final AtualizacaoRespository atualizacaoRespository = mock(AtualizacaoRespository.class);
         final ProcessoNovoStrategy strategy = new ProcessoNovoStrategy.Builder()
                 .requisicaoRepository(requisicaoRepository)
-                .requisicaoService(requisicaoService)
+                .requisicaoService(respostaService)
                 .atualizacaoRespository(atualizacaoRespository)
                 .build();
         final Atualizacao atualizacao = mock(Atualizacao.class);

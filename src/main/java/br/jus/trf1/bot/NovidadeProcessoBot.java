@@ -1,28 +1,26 @@
 package br.jus.trf1.bot;
 
-import br.jus.trf1.bot.fluxo.FluxoSpecification;
+import br.jus.trf1.bot.exception.ComportamentoIndeterminadoException;
 import br.jus.trf1.bot.fluxo.ListarProcessoSpecification;
 import br.jus.trf1.bot.fluxo.ProcessoNovoSpecification;
 import br.jus.trf1.bot.fluxo.ProcessoSelecionadoSpecification;
+import br.jus.trf1.bot.fluxo.RespostaSpecification;
 import br.jus.trf1.bot.novidade.AtualizacaoRespository;
-import br.jus.trf1.telegram.bot.SendMessageFactory;
-import com.pengrad.telegrambot.TelegramBot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 public class NovidadeProcessoBot {
 
     public NovidadeProcessoBot() {
-        addFluxoSpecification(new ListarProcessoSpecification(mRequisicaoRepository, mRequisicaoService));
-        addFluxoSpecification(new ProcessoNovoSpecification(mAtualizacaoRespository, mRequisicaoRepository, mRequisicaoService));
-        addFluxoSpecification(new ProcessoSelecionadoSpecification(mAtualizacaoRespository, mRequisicaoService));
     }
 
     public static class Builder {
         private AtualizacaoRespository atualizacaoRespository;
         private RequisicaoRepository requisicaoRepository;
-        private RequisicaoService requisicaoService;
+        private RespostaService respostaService;
 
         public Builder() {}
 
@@ -31,8 +29,8 @@ public class NovidadeProcessoBot {
             return this;
         }
 
-        public Builder requisicaoService(final RequisicaoService service) {
-            requisicaoService = service;
+        public Builder respostaService(final RespostaService service) {
+            respostaService = service;
             return this;
         }
 
@@ -45,8 +43,11 @@ public class NovidadeProcessoBot {
             final NovidadeProcessoBot instance = new NovidadeProcessoBot();
             instance.setRequisicaoAtualizacaoRepository(requisicaoRepository);
             instance.mAtualizacaoRespository = atualizacaoRespository;
-            instance.mRequisicaoService = requisicaoService;
+            instance.mRespostaService = respostaService;
             instance.mRequisicaoRepository = requisicaoRepository;
+            instance.addFluxoSpecification(new ListarProcessoSpecification(requisicaoRepository, respostaService));
+            instance.addFluxoSpecification(new ProcessoNovoSpecification(atualizacaoRespository, requisicaoRepository, respostaService));
+            instance.addFluxoSpecification(new ProcessoSelecionadoSpecification(atualizacaoRespository, respostaService));
             return instance;
         }
     }
@@ -55,21 +56,27 @@ public class NovidadeProcessoBot {
         mRequisicaoRepository = requisicaoRepository;
     }
 
-    public void responder(final Requisicao novaRequisicao) {
-        mFluxoSpecifications.forEach(specification -> {
-            if (specification.satisfaz(novaRequisicao)) specification.getFluxoStrategy().execute(novaRequisicao);
-        });
+    public Resposta responder(final Requisicao novaRequisicao) {
+        final Stream<RespostaSpecification> respostaSpecificationStream = mRespostaSpecifications
+                .stream()
+                .filter(specification -> specification.satisfesteiPor(novaRequisicao));
+        final Optional<RespostaSpecification> optionalSpecification = respostaSpecificationStream.findFirst();
+
+        if (optionalSpecification.isPresent())  return novaRequisicao.responder(optionalSpecification.get());
+
+        throw new ComportamentoIndeterminadoException("Não deveríamos estar aqui").requisicao(novaRequisicao);
+
     }
 
-    public void addFluxoSpecification(final FluxoSpecification specification) {
-        mFluxoSpecifications.add(specification);
+    public void addFluxoSpecification(final RespostaSpecification specification) {
+        mRespostaSpecifications.add(specification);
     }
 
-    private List<FluxoSpecification> mFluxoSpecifications = new ArrayList<>();
+    private List<RespostaSpecification> mRespostaSpecifications = new ArrayList<>();
 
     private AtualizacaoRespository mAtualizacaoRespository;
 
-    private RequisicaoService mRequisicaoService;
+    private RespostaService mRespostaService;
 
     private RequisicaoRepository mRequisicaoRepository;
 
